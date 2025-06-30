@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway Integration</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        }
+        pre {
+            border-radius: 8px;
+        }
+        .parameter-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .parameter-table th, .parameter-table td {
+            border: 1px solid #e2e8f0;
+            padding: 12px 15px;
+        }
+        .parameter-table th {
+            background-color: #f8fafc;
+        }
+        .parameter-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+   <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 md:py-6">
+            <div class="flex justify-between items-center">
+                <!-- Logo/Brand -->
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <h1 class="text-xl md:text-2xl font-bold">Payment Gateway</h1>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <a href="#introduction" class="px-3 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Introduction</a>
+                    <a href="#installation" class="px-3 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Installation</a>
+                    <a href="#parameters" class="px-3 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Parameters</a>
+                    <a href="#integration" class="px-3 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Integration</a>
+                    <a href="home.php" class="ml-2 px-4 py-2 rounded-lg bg-white text-blue-600 font-medium transition hover:bg-gray-100 active:bg-gray-200">Get Started</a>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none p-2 rounded-lg hover:bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="#introduction" class="block px-4 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Introduction</a>
+                    <a href="#installation" class="block px-4 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Installation</a>
+                    <a href="#parameters" class="block px-4 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Parameters</a>
+                    <a href="#integration" class="block px-4 py-2 rounded-lg transition hover:bg-white/10 active:bg-white/20">Integration</a>
+                    <a href="home.php" class="block mt-2 px-4 py-2 text-center rounded-lg bg-white text-blue-600 font-medium transition hover:bg-gray-100 active:bg-gray-200">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Introduction Section -->
+        <section id="introduction" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Introduction</h2>
+                </div>
+                <p class="text-gray-600 mb-4">
+                    Our Payment Gateway allows you to accept secure online payments with simple API requests. 
+                    It supports both server-side and client-side integrations with minimal setup required.
+                </p>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                    <p class="text-blue-700">
+                        <span class="font-bold">Note:</span> Always verify payments from your own server. Never trust success_url alone — check the transaction on your server with the transaction ID (trx_id).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation Section -->
+        <section id="installation" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-green-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Installation</h2>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- PHP Installation -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-800 text-white px-4 py-2 flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <span class="font-mono text-sm">PHP</span>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-600 mb-3">Make sure your PHP installation has cURL enabled:</p>
+                            <pre class="mb-4"><code class="language-bash">sudo apt install php-curl</code></pre>
+                            <p class="text-gray-600">Test if cURL is enabled:</p>
+                            <pre><code class="language-php">&lt;?php phpinfo(); ?&gt;</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- Python Installation -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-800 text-white px-4 py-2 flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <span class="font-mono text-sm">Python</span>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-600 mb-3">Install the required package:</p>
+                            <pre><code class="language-bash">pip install requests</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- JavaScript Installation -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-800 text-white px-4 py-2 flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <span class="font-mono text-sm">JavaScript</span>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-600">Make sure you are using a browser that supports Fetch API. All modern browsers support this.</p>
+                            <p class="text-gray-600 mt-3">For Node.js backend:</p>
+                            <pre><code class="language-bash">npm install axios</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Parameters Section -->
+        <section id="parameters" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-purple-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Required Parameters</h2>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="parameter-table w-full rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="text-left">Parameter</th>
+                                <th class="text-left">Type</th>
+                                <th class="text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-mono">api_key</td>
+                                <td>string</td>
+                                <td>Your secure API key</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">amount</td>
+                                <td>float</td>
+                                <td>Payment amount (e.g., 40.00)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">success_url</td>
+                                <td>string</td>
+                                <td>Redirect URL after successful payment</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">cancel_url</td>
+                                <td>string</td>
+                                <td>Redirect URL if payment is cancelled</td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono">my_data</td>
+                                <td>string</td>
+                                <td>Custom reference or tracking string</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">API Endpoint</h3>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <code class="font-mono text-blue-600">POST https://bot.rcrel.com/api/create.php</code>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">API Response</h3>
+                    <p class="text-gray-600 mb-2">Successful response:</p>
+                    <pre class="mb-4"><code class="language-json">{
+  "success": true,
+  "trx_id": "TX-UNIQUEID",
+  "payment_url": "https://.../payment.php?trx=TX-UNIQUEID"
+}</code></pre>
+                    
+                    <p class="text-gray-600 mb-2">Error response:</p>
+                    <pre><code class="language-json">{
+  "success": false,
+  "message": "Invalid API Key",
+  "payment_url": "https://your-cancel-url.com"
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Section -->
+        <section id="integration" class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Integration</h2>
+                </div>
+                
+                <!-- PHP Integration -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                        <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm mr-2">PHP</span>
+                        Server-Side Integration
+                    </h3>
+                    <pre><code class="language-php">&lt;?php
+$api_key = 'YOUR_API_KEY';
+$url = 'https://bot.rcrel.com/api/create.php';
+
+$data = [
+    'api_key'     => $api_key,
+    'success_url' => 'https://yourdomain.com/success.php',
+    'cancel_url'  => 'https://yourdomain.com/cancel.php',
+    'my_data'     => 'my_custom_data',
+    'type'        => 'sandbox', // Optional, use 'sandbox' for testing... 'type' can be 'sandbox' or 'live'
+    'amount'      => 40
+];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/x-www-form-urlencoded',
+    'User-Agent: Mozilla/5.0'
+]);
+$response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($http_code == 200) {
+    $result = json_decode($response, true);
+    header("Location: " . $result['payment_url']);
+    exit;
+} else {
+    echo "HTTP Error $http_code";
+}
+?&gt;</code></pre>
+                </div>
+                
+                <!-- Python Integration -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                        <span class="bg-green-600 text-white px-2 py-1 rounded text-sm mr-2">Python</span>
+                        Server-Side Integration
+                    </h3>
+                    <pre><code class="language-python">import requests
+
+url = 'https://bot.rcrel.com/api/create.php'
+data = {
+    'api_key': 'YOUR_API_KEY',
+    'success_url': 'https://yourdomain.com/success.php',
+    'cancel_url': 'https://yourdomain.com/cancel.php',
+    'my_data': 'my_custom_data',
+    'type': 'sandbox',  # Optional, use 'sandbox' for testing... 'type' can be 'sandbox' or 'live'
+    'amount': 40
+}
+
+response = requests.post(url, data=data, headers={
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'User-Agent': 'Mozilla/5.0'
+})
+
+print(response.status_code)
+print(response.json())</code></pre>
+                </div>
+                
+                <!-- JavaScript Integration -->
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                        <span class="bg-yellow-500 text-white px-2 py-1 rounded text-sm mr-2">JavaScript</span>
+                        Client-Side Integration
+                    </h3>
+                    <pre><code class="language-javascript">const data = new URLSearchParams({
+  api_key: 'YOUR_API_KEY',
+  success_url: 'https://yourdomain.com/success.php',
+  cancel_url: 'https://yourdomain.com/cancel.php',
+  my_data: 'my_custom_data',
+  type: 'sandbox', // Optional, use 'sandbox' for testing... 'type' can be 'sandbox' or 'live'
+  amount: 40
+});
+
+fetch('https://bot.rcrel.com/api/create.php', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: data
+})
+.then(res => res.json())
+.then(res => {
+  if (res.success) {
+    window.location.href = res.payment_url;
+  } else {
+    alert('Payment failed: ' + res.message);
+  }
+})
+.catch(err => alert('Request failed: ' + err));</code></pre>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Mobile App Section -->
+        <section class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-pink-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Mobile App Integration</h2>
+                </div>
+                
+                <p class="text-gray-600 mb-4">
+                    You can integrate this gateway into your Android or iOS app using standard HTTP clients.
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Android -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-800 text-white px-4 py-2 flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <span class="font-mono text-sm">Android (Kotlin)</span>
+                        </div>
+                        <div class="p-4">
+                            <pre><code class="language-kotlin">val client = OkHttpClient()
+
+val formBody = FormBody.Builder()
+    .add("api_key", "YOUR_API_KEY")
+    .add("amount", "40")
+    .add("success_url", "https://yourdomain.com/success")
+    .add("cancel_url", "https://yourdomain.com/cancel")
+    .add("my_data", "my_custom_data")
+    .add("type", "sandbox") // Optional, use 'sandbox' for testing... 'type' can be 'sandbox' or 'live'
+    .build()
+
+val request = Request.Builder()
+    .url("https://bot.rcrel.com/api/create.php")
+    .post(formBody)
+    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+    .build()
+
+client.newCall(request).enqueue(object : Callback {
+    override fun onFailure(call: Call, e: IOException) {
+        // Handle error
+    }
+    
+    override fun onResponse(call: Call, response: Response) {
+        val json = JSONObject(response.body()?.string())
+        if (json.getBoolean("success")) {
+            val paymentUrl = json.getString("payment_url")
+            // Open in browser or WebView
+        }
+    }
+})</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- iOS -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-800 text-white px-4 py-2 flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <span class="font-mono text-sm">iOS (Swift)</span>
+                        </div>
+                        <div class="p-4">
+                            <pre><code class="language-swift">let url = URL(string: "https://bot.rcrel.com/api/create.php")!
+var request = URLRequest(url: url)
+request.httpMethod = "POST"
+request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+
+let parameters = [
+    "api_key": "YOUR_API_KEY",
+    "amount": "40",
+    "success_url": "https://yourdomain.com/success",
+    "cancel_url": "https://yourdomain.com/cancel",
+    "my_data": "my_custom_data",
+    "type": "sandbox" // Optional, use 'sandbox' for testing... 'type' can be 'sandbox' or 'live'
+]
+request.httpBody = parameters
+    .map { "\($0.key)=\($0.value)" }
+    .joined(separator: "&")
+    .data(using: .utf8)
+
+let task = URLSession.shared.dataTask(with: request) { data, response, error in
+    guard let data = data else { return }
+    do {
+        if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let success = json["success"] as? Bool,
+           success,
+           let paymentUrl = json["payment_url"] as? String {
+            DispatchQueue.main.async {
+                UIApplication.shared.open(URL(string: paymentUrl)!)
+            }
+        }
+    } catch {
+        print("JSON error: \(error.localizedDescription)")
+    }
+}
+task.resume()</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                    <p class="text-blue-700">
+                        <span class="font-bold">Coming Soon:</span> Native SDKs for Android and iOS to simplify integration.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <span class="text-xl font-bold">Payment Gateway</span>
+                    </div>
+                    <p class="mt-2 text-blue-100">Secure and reliable payment processing</p>
+                </div>
+                
+                <div class="flex flex-col space-y-2">
+                    <a href="mailto:support@yourdomain.com" class="flex items-center hover:text-blue-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" >  </svg>
+                        <span>Email Support</span>
+                    </a>
+                    <a href="" class="flex items-center hover:text-blue-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" >  </svg>
+                        <span>Documentation</span> 
+                    </a>
+                    <a href="" class="flex items-center hover:text-blue-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" >  </svg>
+                        <span>API Reference</span>
+                    </a>
+                    <a href="" class="flex items-center hover:text-blue-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" >  </svg>
+                        <span>Support</span>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <p class="text-sm">© 2023 Payment Gateway. All rights reserved.</p>
+                <p class="text-sm">Terms of Service | Privacy Policy</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Mobile menu toggle functionality
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+        // Smooth scroll for anchor links
+        const links = document.querySelectorAll('a[href^="#"]');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+<!-- End of HTML Document -->

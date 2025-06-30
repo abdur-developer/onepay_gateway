@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Onepay Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f8f8;
+      font-family: 'Segoe UI', sans-serif;
+      padding-bottom: 50px;
+    }
+    .top-banner {
+      background-image: url('https://onepays.news/checkoutdata/onepay/img/topbg.6b8f4100.png');
+      background-size: cover;
+      background-position: center;
+      padding: 40px 20px 50px;
+      text-align: center;
+      display: flex;
+    }
+    .top-banner img {
+      max-width: 40px;
+      border-radius: 50%;
+    }
+    .switch-text {
+      text-align: center;
+      font-size: 14px;
+      color: #f48b00;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .alert-danger {
+      background-color: #ffe6e6;
+      border: 1px solid #ff9999;
+      color: #b30000;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .info-box {
+      background-color: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .info-box div {
+      margin-bottom: 10px;
+    }
+    .info-box b {
+      display: inline-block;
+      min-width: 70px;
+      color: #000;
+    }
+    .countdown {
+      color: #000;
+      font-weight: bold;
+    }
+    label.form-label {
+      font-size: 15px;
+      color: #d20000;
+    }
+    input.form-control {
+      border-radius: 8px;
+      font-size: 15px;
+      height: 45px;
+    }
+    .submit-btn {
+      background-color: #888;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+    .submit-btn:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-banner">
+    <img src="https://onepays.news/checkoutdata/onepay/img/pixlogo.2432dd36.png" alt="Onepay Logo">
+    <h3 class="text-light mx-2">Onepay</h3>
+  </div>
+
+  <div class="container">
+    <div class="switch-text">
+      অ্যাকাউন্টটি ফ্রিজ, স্যুইচ করতে ক্লিক করুন &gt;
+    </div>
+    <style>
+      .alert-dekhao img {
+        width: 25px;
+        height: 25px;
+        vertical-align: middle;
+      }
+      .alert-dekhao span {
+        font-weight: 700;
+      }
+      .info-bal img {
+        width: 20px;
+        height: 20px;
+        margin-left: 10px;
+      }
+    </style>
+    <div class="alert-dekhao">
+      <img src="https://uxwing.com/wp-content/themes/uxwing/download/signs-and-symbols/exclamation-warning-round-red-icon.svg" alt="">
+      <span>সতর্কতা</span>
+    </div>
+    <div style="font-weight: 600; color: #f55941">
+      অনুগ্রহ করে একই ওয়ালেট দিয়ে অর্থপ্রদান করুন এবং ব্যবহৃত এজেন্টে সঠিক TxnID পূরণ করুন <br>
+      অনুগ্রহ করে নিচে দেওয়া অ্যাকাউন্ট নম্বরে অর্থপ্রদান করুন
+    </div>
+    <div class="row info-bal mt-3">
+      <div class="col-6 text-end">
+        <div>মানিব্যাগ</div>
+        <div>হিসাবঃ</div>
+        <div>পরিমাণঃ</div>
+        <div>কাউন্টডাউনঃ</div>
+      </div>
+      <div class="col-6">        
+        <div><span class="text-dark">nagad</span></div>
+        <div onclick="copyKro(this)">
+          <a href="#" class="">01621216137</a>
+          <img src="https://cdn-icons-png.flaticon.com/128/54/54702.png"/>
+        </div>
+        <div onclick="copyKro(this)">
+          <span class="text-success">3700</span> 
+          <img src="https://cdn-icons-png.flaticon.com/128/54/54702.png"/>
+        </div>
+        <div><span class="countdown" id="timer">05:00</span></div>
+        <script>
+          function copyKro(element) {
+              const textToCopy = element.querySelector('a, span').textContent;
+              navigator.clipboard.writeText(textToCopy);
+              alert('কপি করা হয়েছে: ' + textToCopy);
+          }
+        </script>
+      </div>
+    </div>
+
+    <form class="mt-3">
+      <label for="txnId" class="form-label">সঠিক TxnID পূরণ করুন</label>
+      <input type="text" class="form-control mb-3" id="txnId" placeholder="৮-সংখ্যার TxnID">
+      <button type="submit" class="submit-btn">নিশ্চিত করুন</button>
+    </form>
+  </div>
+
+  <script>
+    let time = 300;
+    const timerDisplay = document.getElementById('timer');
+
+    const updateTimer = () => {
+      const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+      const seconds = String(time % 60).padStart(2, '0');
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+      if (time > 0) {
+        time--;
+      } else {
+        clearInterval(countdownInterval);
+        timerDisplay.textContent = 'সময় শেষ';
+      }
+    };
+
+    const countdownInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+  </script>
+</body>
+</html>
