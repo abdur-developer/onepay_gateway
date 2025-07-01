@@ -213,7 +213,7 @@
                 <div class="mt-6">
                     <h3 class="text-xl font-semibold text-gray-800 mb-3">API Endpoint</h3>
                     <div class="bg-gray-100 p-4 rounded-lg">
-                        <code class="font-mono text-blue-600">POST https://bot.rcrel.com/api/create.php</code>
+                        <code class="font-mono text-blue-600">POST https://onepay.website/api/create.php</code>
                     </div>
                 </div>
                 
@@ -257,7 +257,7 @@
                     </h3>
                     <pre><code class="language-php">&lt;?php
 $api_key = 'YOUR_API_KEY';
-$url = 'https://bot.rcrel.com/api/create.php';
+$url = 'https://onepay.website/api/create.php';
 
 $data = [
     'api_key'     => $api_key,
@@ -299,7 +299,7 @@ if ($http_code == 200) {
                     </h3>
                     <pre><code class="language-python">import requests
 
-url = 'https://bot.rcrel.com/api/create.php'
+url = 'https://onepay.website/api/create.php'
 data = {
     'api_key': 'YOUR_API_KEY',
     'success_url': 'https://yourdomain.com/success.php',
@@ -333,7 +333,7 @@ print(response.json())</code></pre>
   amount: 40
 });
 
-fetch('https://bot.rcrel.com/api/create.php', {
+fetch('https://onepay.website/api/create.php', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded'
@@ -391,7 +391,7 @@ val formBody = FormBody.Builder()
     .build()
 
 val request = Request.Builder()
-    .url("https://bot.rcrel.com/api/create.php")
+    .url("https://onepay.website/api/create.php")
     .post(formBody)
     .addHeader("Content-Type", "application/x-www-form-urlencoded")
     .build()
@@ -421,7 +421,7 @@ client.newCall(request).enqueue(object : Callback {
                             <span class="font-mono text-sm">iOS (Swift)</span>
                         </div>
                         <div class="p-4">
-                            <pre><code class="language-swift">let url = URL(string: "https://bot.rcrel.com/api/create.php")!
+                            <pre><code class="language-swift">let url = URL(string: "https://onepay.website/api/create.php")!
 var request = URLRequest(url: url)
 request.httpMethod = "POST"
 request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
