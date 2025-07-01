@@ -61,11 +61,24 @@ $user = $stmt->fetch();
                     <li class="nav-item">
                         <a class="nav-link" href="#">Pricing</a>
                     </li>
+                    <?php if($user_id == 0) {
+                        $med = [];
+                        for ($i = 1; $i <= 3; $i++) {
+                            $sql = "SELECT number FROM method WHERE id = ?";
+                            $stmt = $pdo->prepare($sql);
+                            $stmt->execute([$i]);
+                            $med[] = $stmt->fetch()['number'];
+                        }
+                    ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin/users.php">Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" 
+                            onclick="addNumber('admin','<?=$med[0]?>','<?=$med[1]?>','<?=$med[2]?>');"
+                            >Method</a>
+                        </li>
                     <?php
-                        if($user_id == 0) {
-                            echo '<li class="nav-item">
-                                <a class="nav-link" href="admin/users.php">Users</a>
-                            </li>';
                         }
                     ?>
                     <li class="nav-item">
@@ -172,6 +185,121 @@ $user = $stmt->fetch();
         
         function pay(plan) {
             window.location.replace('buy_package.php?plan=' + plan);
+        }
+        async function addNumber(buyId, bkash, nagad, rocket) {
+            // Parse existing values (assuming they're in format "number|type")
+            const parseValue = (val) => {
+                if (!val) return { number: '', type: 'personal' };
+                const parts = val.split('|');
+                return { number: parts[0] || '', type: parts[1] || 'personal' };
+            };
+
+            const bkashData = parseValue(bkash);
+            const nagadData = parseValue(nagad);
+            const rocketData = parseValue(rocket);
+
+            const { value: formValues } = await Swal.fire({
+                title: "Payment Methods",
+                width: '400px',
+                html: `
+                    <div class="compact-payment-form">
+                        <div class="compact-input-group">
+                            <input id="swal-input1" type="number" class="compact-input" value="${bkashData.number}" placeholder="Bkash">
+                            <select id="swal-select1" class="compact-select">
+                                <option value="personal" ${bkashData.type === 'personal' ? 'selected' : ''}>Personal</option>
+                                <option value="agent" ${bkashData.type === 'agent' ? 'selected' : ''}>Agent</option>
+                                <option value="merchant" ${bkashData.type === 'merchant' ? 'selected' : ''}>Merchant</option>
+                            </select>
+                        </div>
+                        
+                        <div class="compact-input-group">
+                            <input id="swal-input2" type="number" class="compact-input" value="${nagadData.number}" placeholder="Nagad">
+                            <select id="swal-select2" class="compact-select">
+                                <option value="personal" ${nagadData.type === 'personal' ? 'selected' : ''}>Personal</option>
+                                <option value="agent" ${nagadData.type === 'agent' ? 'selected' : ''}>Agent</option>
+                                <option value="merchant" ${nagadData.type === 'merchant' ? 'selected' : ''}>Merchant</option>
+                            </select>
+                        </div>
+                        
+                        <div class="compact-input-group">
+                            <input id="swal-input3" type="number" class="compact-input" value="${rocketData.number}" placeholder="Rocket">
+                            <select id="swal-select3" class="compact-select">
+                                <option value="personal" ${rocketData.type === 'personal' ? 'selected' : ''}>Personal</option>
+                                <option value="agent" ${rocketData.type === 'agent' ? 'selected' : ''}>Agent</option>
+                                <option value="merchant" ${rocketData.type === 'merchant' ? 'selected' : ''}>Merchant</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <style>
+                        .compact-payment-form {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                        }
+                        .compact-input-group {
+                            display: flex;
+                            gap: 0.3rem;
+                        }
+                        .compact-input, .compact-select {
+                            padding: 0.3rem;
+                            font-size: 0.85rem;
+                            border: 1px solid #ddd;
+                            border-radius: 3px;
+                        }
+                        .compact-input {flex: 2;}
+                        .compact-select {flex: 1;}
+                    </style>
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+                    const values = [];
+                    for (let i = 1; i < 4; i++) {
+                        const number = document.getElementById(`swal-input${i}`).value.trim();
+                        const type = document.getElementById(`swal-select${i}`).value;
+                        if (!number) {
+                            Swal.showValidationMessage(`Please enter all numbers`);
+                            return false;
+                        }
+                        values.push(`${number}|${type}`);
+                    }
+                    return values;
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const response = await fetch("sec/save_methods.php", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ buy_id: buyId, methods: formValues })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        toast("Saved successfully!");
+                        window.location.reload();
+                    } else {
+                        throw new Error(result.message || "Error saving methods");
+                    }
+                } catch (error) {
+                    toast(error.message, "error");
+                }
+            }
+        }
+        function toast(message, type = 'success') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({icon: type, title: message});
         }
     </script>
 </body>

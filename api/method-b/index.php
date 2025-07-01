@@ -157,9 +157,18 @@
         <div><span class="countdown" id="timer">05:00</span></div>
         <script>
           function copyKro(element) {
-              const textToCopy = element.querySelector('a, span').textContent;
-              navigator.clipboard.writeText(textToCopy);
-              alert('কপি করা হয়েছে: ' + textToCopy);
+              const target = element.querySelector('a, span');
+              if (!target) {
+                  alert('কপি করার জন্য কোনো তথ্য পাওয়া যায়নি।');
+                  return;
+              }
+              const textToCopy = target.textContent;              
+              if (!textToCopy) return;
+              const parts = textToCopy.split('|');
+              const x = { number: parts[0] || '', type: parts[1] || 'personal' };
+
+              navigator.clipboard.writeText(x['number']);
+              alert('কপি করা হয়েছে: ' + x['number']);
           }
         </script>
       </div>

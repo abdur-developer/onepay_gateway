@@ -1,7 +1,7 @@
 <?php
 $trx = $_GET['trx'] ?? null;
 if (!$trx) {
-    header("Location: index.php");
+    header("Location: index.php", true, 303);
     exit;
 }
 
@@ -9,7 +9,7 @@ require_once('dbcon.php');
 $sql = "SELECT * FROM payment WHERE trx = '$trx'";
 $result = mysqli_query($conn, $sql);
 if (mysqli_num_rows($result) == 0) {
-    header("Location: index.php");
+    header("Location: index.php", true, 303);
     exit;
 }
 $row = mysqli_fetch_assoc($result);
@@ -110,24 +110,44 @@ $row = mysqli_fetch_assoc($result);
                     </div>
                 </div>
                 <div class="method-box d-none" id="method_box">
-                    <div class="d-flex align-items-center py-2 payment-option" onclick="selectMethod('bkash', 'https://checkout-bdt.onepay.news/static/Collection/bkash.png')" style="padding: 16px 0px; gap: 8px; cursor: pointer;">
-                        <img src="https://checkout-bdt.onepay.news/static/Collection/bkash.png" style="height: 23px; width: 23px; border-radius: 5px;" alt="Bkash">
-                        <div style="color: #313381; font-size: 12px; font-weight: 700;">
-                            Bkash
+                    <?php
+                        $bkash = true; $nagad = true; $rocket = true;
+                        if($row['isUser'] != 0 && $row['isUser'] != null){
+                            $sql = "SELECT rocket, bkash, nagad FROM `buy_pack` WHERE id = '{$row['isUser']}'";
+                            $buy_pack = mysqli_fetch_assoc(mysqli_query($conn, $sql));
+                            if(!$buy_pack['bkash']) $bkash = false;
+                            if(!$buy_pack['nagad']) $nagad = false;
+                            if(!$buy_pack['rocket']) $rocket = false;
+                        }
+                    
+                        if($bkash){ ?> 
+                            <div class="d-flex align-items-center py-2 payment-option" onclick="selectMethod('bkash', 'https://checkout-bdt.onepay.news/static/Collection/bkash.png')" style="padding: 16px 0px; gap: 8px; cursor: pointer;">
+                                <img src="https://checkout-bdt.onepay.news/static/Collection/bkash.png" style="height: 23px; width: 23px; border-radius: 5px;" alt="Bkash">
+                                <div style="color: #313381; font-size: 12px; font-weight: 700;">
+                                    Bkash
+                                </div>
+                            </div>
+                        <?php
+                        }
+                    if($nagad){ ?>
+                        <div class="d-flex align-items-center py-2 payment-option" onclick="selectMethod('nagad', 'https://onepays.news/uploads/24/10/1812520512990336.png')" style="padding: 16px 0px; gap: 8px; cursor: pointer;">
+                            <img src="https://onepays.news/uploads/24/10/1812520512990336.png" style="height: 23px; width: 23px; border-radius: 5px;" alt="Nagad">
+                            <div style="color: #313381; font-size: 12px; font-weight: 700;">
+                                Nagad
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center py-2 payment-option" onclick="selectMethod('nagad', 'https://onepays.news/uploads/24/10/1812520512990336.png')" style="padding: 16px 0px; gap: 8px; cursor: pointer;">
-                        <img src="https://onepays.news/uploads/24/10/1812520512990336.png" style="height: 23px; width: 23px; border-radius: 5px;" alt="Nagad">
-                        <div style="color: #313381; font-size: 12px; font-weight: 700;">
-                            Nagad
+                    <?php
+                        }
+                    if($rocket){ ?>
+                        <div class="d-flex align-items-center py-2 payment-option" onclick="selectMethod('rocket', 'https://play-lh.googleusercontent.com/sDY6YSDobbm_rX-aozinIX5tVYBSea1nAyXYI4TJlije2_AF5_5aG3iAS7nlrgo0lk8=w240-h480-rw')" style="padding: 16px 0px; gap: 8px; cursor: pointer;">
+                            <img src="https://play-lh.googleusercontent.com/sDY6YSDobbm_rX-aozinIX5tVYBSea1nAyXYI4TJlije2_AF5_5aG3iAS7nlrgo0lk8=w240-h480-rw" style="height: 23px; width: 23px; border-radius: 5px;" alt="Rocket">
+                            <div style="color: #313381; font-size: 12px; font-weight: 700;">
+                                Rocket
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center py-2 payment-option" onclick="selectMethod('rocket', 'https://play-lh.googleusercontent.com/sDY6YSDobbm_rX-aozinIX5tVYBSea1nAyXYI4TJlije2_AF5_5aG3iAS7nlrgo0lk8=w240-h480-rw')" style="padding: 16px 0px; gap: 8px; cursor: pointer;">
-                        <img src="https://play-lh.googleusercontent.com/sDY6YSDobbm_rX-aozinIX5tVYBSea1nAyXYI4TJlije2_AF5_5aG3iAS7nlrgo0lk8=w240-h480-rw" style="height: 23px; width: 23px; border-radius: 5px;" alt="Rocket">
-                        <div style="color: #313381; font-size: 12px; font-weight: 700;">
-                            Rocket
-                        </div>
-                    </div>
+                    <?php
+                    }
+                    ?>
                 </div>
             </div>
             

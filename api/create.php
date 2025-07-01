@@ -54,12 +54,14 @@
     $amount = floatval($_POST['amount'] ?? 0);
     $success_url = trim($_POST['success_url'] ?? '');
     $type = trim($_POST['type'] ?? 'live');
+    $isUser = 0;
 
-    $sql = "SELECT user_id, pack_id FROM buy_pack WHERE api = '$received_api_key' LIMIT 1";
+    $sql = "SELECT id, user_id, pack_id FROM buy_pack WHERE api = '$received_api_key' LIMIT 1";
     $result = $conn->query($sql);
     $row_api = $result->fetch_assoc();
     $user_id = $row_api['user_id'] ?? 0;
     $pack_id = $row_api['pack_id'] ?? 0;
+    $isUser = $row_api['id'] ?? 0;
     //if ($user_id <= 0) {
     //showJson(false, 'User not logged in', $cancel_url . '?my_data=' . urlencode($my_data).'&message=User+not+found');
     //}
@@ -122,8 +124,8 @@
 
     $trx_id = 'TX-' . strtoupper(bin2hex(random_bytes(6)));
 
-    $stmt = $conn->prepare("INSERT INTO payment (trx, amount, success_url, cancel_url, my_data, type) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sdssss", $trx_id, $amount, $success_url, $cancel_url, $my_data, $type);
+    $stmt = $conn->prepare("INSERT INTO payment (trx, amount, success_url, cancel_url, my_data, type, isUser) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sdssssi", $trx_id, $amount, $success_url, $cancel_url, $my_data, $type, $isUser);
     $stmt->execute();
     $stmt->close();
 

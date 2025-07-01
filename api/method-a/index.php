@@ -172,7 +172,11 @@
                 <div class="note">
                     ধাপ 2. আপনি যে পরিমাণ রিচার্জ করতে চান তা 
                     <span class="d-block ps-2">
-                    <?= $method['name'] ?> Send Money মাধ্যমে আমাদের কাছে ট্রান্সফার করুন।
+                    <?php
+                        echo $method['name'];
+                        $parts = explode('|', $method['number']);
+                        echo " ".$parts[1];
+                    ?> মাধ্যমে আমাদের কাছে ট্রান্সফার করুন।
                     </span>
                 </div>
                 <div class="note">
@@ -186,7 +190,7 @@
                 </div>
                 <div class="my-2 form-box d-flex align-items-center justify-content-between" id="copyNumber">
                     <div>
-                        <span class="copy_pay_number bg-transparent border-0" id="nagad-number"><?= isset($method['number']) ? $method['number'] : '' ?></span>
+                        <span class="copy_pay_number bg-transparent border-0" id="nagad-number"><?= $parts[0] ?></span>
                     </div>
                     <div class="copy" onclick="copyToClipboard()">
                         কপি

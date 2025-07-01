@@ -1,5 +1,5 @@
 <?php
-$api_key = 'sk-655eaf31013827d48c3e56583b9cad3f';
+$api_key = 'sk-beaeb9a3be9bef7bb219409f997bd1ef';
 $url = 'https://bot.rcrel.com/api/create.php';
 $url = 'http://localhost:8080/getway/api/create.php';
 

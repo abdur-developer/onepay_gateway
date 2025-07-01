@@ -1,14 +1,14 @@
 <?php
   $trx = $_GET['trx'] ?? null;
   if (!$trx) {
-    header("Location: index.php");
+    header("Location: index.php", true, 303);
     exit;
   }
   require_once('dbcon.php');
   $sql = "SELECT * FROM payment WHERE trx = '$trx'";
   $result = mysqli_query($conn, $sql);
   if (mysqli_num_rows($result) == 0) {
-    header("Location: index.php");
+    header("Location: index.php", true, 303);
     exit;
   }
   $row = mysqli_fetch_assoc($result);
