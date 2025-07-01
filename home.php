@@ -257,10 +257,6 @@ $user = $stmt->fetch();
                     for (let i = 1; i < 4; i++) {
                         const number = document.getElementById(`swal-input${i}`).value.trim();
                         const type = document.getElementById(`swal-select${i}`).value;
-                        if (!number) {
-                            Swal.showValidationMessage(`Please enter all numbers`);
-                            return false;
-                        }
                         values.push(`${number}|${type}`);
                     }
                     return values;

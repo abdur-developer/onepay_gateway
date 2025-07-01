@@ -66,24 +66,19 @@
 
     <div class="row g-3">
         <?php
-        function isAble($planId) {
-            global $pdo;
-            $userId = $_SESSION['user_id'];
-
-            // Check if user already bought the pack
-            $stmt = $pdo->prepare("SELECT id FROM buy_pack WHERE pack_id = ? AND user_id = ?");
-            $stmt->execute([$planId, $userId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userId = $_SESSION['user_id'];
+        function isAble($planId, $ck_row) {
+            global $pdo, $userId;
 
             // If not bought, show "Get Started" button
-            if (!$row) {
+            if (!$ck_row) {
                 return "<button class='btn btn-sm btn-success w-100 py-2' onclick='pay(\"$planId\")'>
                             <i class='fas fa-bolt me-1'></i> Get Started
                         </button>";
             }
 
             // Get pack details
-            $buyId = $row['id'];
+            $buyId = $ck_row['id'];
             $stmt = $pdo->prepare("
                 SELECT bp.api, bp.domain_list, bp.bkash, bp.nagad, bp.rocket, p.web_limit 
                 FROM buy_pack bp 
@@ -94,25 +89,20 @@
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // Domain logic
-            $domains = json_decode($data['domain_list'], true);
             $output = '<div class="mb-2">';
 
-            if (empty($domains) || !is_array($domains)) {
-                $output .= "<button class='btn btn-sm btn-outline-primary w-100 mb-2' onclick='addDomain(\"$buyId\", \"{$data['web_limit']}\")'>
-                                <i class='fas fa-plus me-1'></i> Add Domain
-                            </button>";
-            } else {
-                foreach ($domains as $domain) {
-                    $output .= '<span class="domain-badge">' . htmlspecialchars($domain) . '</span>';
-                }
-            }
+            // Ensure $data['domain_list'] is properly initialized
+            $domainListJson = json_encode(!empty($data['domain_list']) ? json_decode($data['domain_list'], true) : []);
+
+            // Pass as JS array string
+            $output .= "<button class='btn btn-sm btn-outline-primary w-100 mb-2' onclick='addDomain(\"$buyId\", \"{$data['web_limit']}\", $domainListJson)'>
+                            <i class='fas fa-plus me-1'></i> Add Domain
+                        </button>";
             $output .= '</div>';
             
-            if (!$data['bkash'] || !$data['nagad'] || !$data['rocket']) {
-                $output .= "<button class='btn btn-sm btn-outline-primary w-100 mb-2' onclick='addNumber(\"$buyId\", \"{$data['bkash']}\", \"{$data['nagad']}\", \"{$data['rocket']}\")'>
-                                <i class='fas fa-wallet me-1'></i> Add Payment
-                            </button>";
-            }
+            $output .= "<button class='btn btn-sm btn-outline-primary w-100 mb-2' onclick='addNumber(\"$buyId\", \"{$data['bkash']}\", \"{$data['nagad']}\", \"{$data['rocket']}\")'>
+                            <i class='fas fa-wallet me-1'></i> Add Payment
+                        </button>";
             
             // API key field
             $output .= "<div class='input-group input-group-sm mt-2'>
@@ -130,7 +120,27 @@
         if (!$result) {
             die("Query failed: " . $pdo->errorInfo()[2]);
         }
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) { ?>
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) { 
+            // Check if user already bought the pack
+            $stmt = $pdo->prepare("SELECT id, time FROM buy_pack WHERE pack_id = ? AND user_id = ?");
+            $stmt->execute([$row['id'], $userId]);
+            $ck_row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if($ck_row){
+                //check package validity expires
+                $duration = $row['duration'];
+                $time = $ck_row['time'];
+
+                date_default_timezone_set('Asia/Dhaka');
+                $start_date = date('Y-m-d', strtotime($time));
+                $current_date = date('Y-m-d');
+                $days_passed = (strtotime($current_date) - strtotime($start_date)) / 86400;
+
+                if ($days_passed >= $duration) {
+                    $pdo->query("DELETE FROM buy_pack WHERE id = '{$ck_row['id']}'");
+                    $ck_row = null;
+                }
+            }
+            ?>
             <div class="col-lg-4 col-md-6">
                 <div class="pricing-card p-3 <?= $row['badgeName'] ? 'highlight' : '' ?>">
                     <?php if ($row['badgeName']): ?>
@@ -149,7 +159,7 @@
                             <li>24/7 Support</li>
                         </ul>
                         
-                        <?= isAble($row['id']) ?>
+                        <?= isAble($row['id'], $ck_row) ?>
                     </div>
                 </div>
             </div>
@@ -173,23 +183,49 @@
         }, 2000);
     }
 
-    
     function isValidDomainOrURL(input) {
         let domain;
+        // Try to parse as URL first
         try {
-            const url = new URL(input);
+            // Add http:// if missing to help URL parser
+            const urlInput = input.includes('://') ? input : `http://${input}`;
+            const url = new URL(urlInput);
             domain = url.hostname;
         } catch (e) {
+            // If URL parsing fails, treat as domain only
             domain = input;
         }
-        const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/;
-        let x = domainRegex.test(domain);
-        console.log(domain, x);
-        return x;
+        
+        // Remove port if present
+        domain = domain.split(':')[0];
+        
+        // More permissive domain regex that handles most cases
+        const domainRegex = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*(\.[A-Za-z]{2,})?$/;
+        
+        // Special case for localhost
+        if (domain === 'localhost') return true;
+        
+        // Check if domain is valid
+        return domainRegex.test(domain);
     }
-    async function addDomain(buyId, webLimit) {
+
+    async function addDomain(buyId, webLimit, domains) {
+        let domainArr = [];
+        try {
+            if (!domains) {
+                domainArr = [];
+            } else if (typeof domains === "string") {
+                domainArr = JSON.parse(domains);
+            } else if (Array.isArray(domains)) {
+                domainArr = domains;
+            }
+            if (!Array.isArray(domainArr)) domainArr = [];
+        } catch (e) {
+            domainArr = [];
+        }
+
         const inputsHtml = Array.from({ length: webLimit }, (_, i) =>
-            `<input id="swal-input${i}" type="url" class="swal2-input" placeholder="Domain ${i + 1}">`
+            `<input id="swal-input${i}" type="text" class="swal2-input" placeholder="Domain ${i + 1}" value="${domainArr[i] ? domainArr[i] : ''}">`
         ).join("");
 
         const { value: formValues } = await Swal.fire({
@@ -200,8 +236,8 @@
                 const values = [];
                 for (let i = 0; i < webLimit; i++) {
                     const val = document.getElementById(`swal-input${i}`).value.trim();
-                    if (!val || !isValidDomainOrURL(val)) {
-                        Swal.showValidationMessage(`valid domain ${i + 1} is required`);
+                    if (val && !isValidDomainOrURL(val)) {
+                        Swal.showValidationMessage(`Valid domain required for domain ${i + 1}`);
                         return false;
                     }
                     values.push(val);
@@ -230,5 +266,4 @@
             }
         }
     }
-    
 </script>

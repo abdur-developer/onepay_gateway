@@ -74,30 +74,30 @@
             showJson(false, 'Invalid API Key', $cancel_url . '?my_data=' . urlencode($my_data).'&message=Invalid+API+Key');
         } 
     }else{
-        $able = false;
         //check package validity expires
-        //join to plans table to get pack_id and get plan validity
-        $sql = "SELECT p.id AS pack_id, b.id AS buy_id, p.duration, b.time FROM plans p 
-                JOIN buy_pack b ON p.id = b.pack_id 
-                WHERE b.user_id = '$user_id' AND b.pack_id = '$pack_id'";
+        $sql = "SELECT p.duration, b.time FROM buy_pack b JOIN plans p ON p.id = b.pack_id WHERE b.api = '$received_api_key' LIMIT 1";
+
         $result = $conn->query($sql);
-        while ($row = $result->fetch_assoc()) {
-            $duration = $row['duration'];
-            $time = $row['time'];
-            // Check if the package is still valid by comparing the current time with the time when the package was bought
-            $current_time = time();
-            $expiry_time = strtotime($time) + ($duration * 24 * 60 * 60); // Convert duration to seconds
-            if ($current_time < $expiry_time) {
-                $able = true;
+
+        if ($row = $result->fetch_assoc()) {
+            $duration = $row['duration']; // ধরো, দিনে
+            $time = $row['time']; // ধরো, Y-m-d H:i:s ফরম্যাটে
+
+            date_default_timezone_set('Asia/Dhaka');
+            $start_date = date('Y-m-d', strtotime($time));
+            $current_date = date('Y-m-d');
+            $days_passed = (strtotime($current_date) - strtotime($start_date)) / 86400;
+
+            if ($days_passed >= $duration) {
+                $conn->query("DELETE FROM buy_pack WHERE api = '$received_api_key'");
+                showJson(
+                    false, 
+                    'Your package has expired. Please renew to continue using our services.', 
+                    $cancel_url . '?my_data=' . urlencode($my_data) . '&message=' . urlencode('Your package has expired. Please renew to continue using our services.')
+                );
             }
         }
-        if (!$able) {
-            showJson(
-                false, 
-                'Your package has expired. Please renew to continue using our services.', 
-                $cancel_url . '?my_data=' . urlencode($my_data) . '&message=' . urlencode('Your package has expired. Please renew to continue using our services.')
-            );
-        }
+
     }
 
     if ($amount <= 0 || empty($success_url) || empty($cancel_url)) {

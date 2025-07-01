@@ -30,7 +30,7 @@ $data = [
     'cancel_url'  => $main_domain . '/failed.php',
     'my_data'     => $plan,
     'amount'      => $amount,
-    'type'        => 'sandbox'
+    'type'        => 'live'
 ];
 
 $ch = curl_init();
