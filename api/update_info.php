@@ -16,21 +16,36 @@ if($password == '1234567890' ){
     $sql = "SELECT COUNT(*) as count FROM sms WHERE message = '$message'";
     $ooo = mysqli_fetch_assoc(mysqli_query($conn, $sql));
     if($ooo['count'] == 0){
-        if("bKash" == $senderNum || "Bkash Personal" == $senderNum){
-            preg_match('/Tk (\d+\.\d{2}) from (\d{11}).*?TrxID ([A-Z0-9]+)/', $message, $matches);
-            if ($matches) {
-                $amount = $matches[1];
-                $number = $matches[2];
-                $trxid  = $matches[3];
-            }
-        }else if("NAGAD" == $senderNum || "Nagad Personal" == $senderNum){
-            preg_match('/Amount: Tk (\d+\.\d{2})\s+Sender: (\d{11})\s+Ref:.*?\s+TxnID: ([A-Z0-9]+)/s', $message, $matches);
-            if ($matches) {
-                $amount = $matches[1];
+
+        if(in_array($senderNum, ["bKash", "Bkash Personal", "bKash Agent", "bKash Merchant"])) {
+            if (preg_match('/Tk\s+([\d,]+\.\d{2})\s+(?:received|payment).*?from\s+(\d{11}).*?TrxID[:\s]+([A-Z0-9]+)/i', $message, $matches)) {
+                $amount = str_replace(',', '', $matches[1]);
                 $number = $matches[2];
                 $trxid  = $matches[3];
             }
         }
+        else if(in_array($senderNum, ["Rocket Personal", "Rocket Agent", "Rocket Merchant"])) {
+            if (preg_match('/Tk\s+([\d,]+\.\d{2})\s+(?:sent to|paid to Merchant|received from (?:Agent )?)\s*(\d{11}).*?TrxID[:\s]+([A-Z0-9]+)/i', $message, $matches)) {
+                $amount = str_replace(',', '', $matches[1]);
+                $number = $matches[2];
+                $trxid  = $matches[3];
+            }
+        }
+        else if(in_array($senderNum, ["NAGAD", "Nagad Personal", "Nagad Merchant"])) {
+            // English format (Merchant)
+            if (preg_match('/Tk\s+([\d,]+\.\d{2})\s+has been successfully paid to Merchant\s+(\d{11}).*?TrxID[:\s]+([A-Z0-9]+)/i', $message, $matches)) {
+                $amount = str_replace(',', '', $matches[1]);
+                $number = $matches[2];
+                $trxid  = $matches[3];
+            }
+            // Bengali format (Agent)
+            else if (preg_match('/Tk\s+([\d,]+\.\d{2})\s+পেয়েছেন Agent\s+(\d{11}).*?TrxID[:：]\s*([A-Z0-9]+)/u', $message, $matches)) {
+                $amount = str_replace(',', '', $matches[1]);
+                $number = $matches[2];
+                $trxid  = $matches[3];
+            }
+        }
+
         
         if($amount != "" && $number != "" && $trxid  != ""){
             
